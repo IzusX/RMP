@@ -1,78 +1,67 @@
 package ru.fefu.activitiesfefu
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
-import ru.fefu.activitiesfefu.databinding.FragmentHistoryBinding
+import androidx.fragment.app.Fragment
+import ru.fefu.activitiesfefu.data.ActivityType
+import java.util.Date
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [HistoryFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HistoryFragment : BaseActivityListFragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun getActivityList(): List<ActivityListItem> = listOf(
-        ActivityListItem.Section("Вчера"),
-        ActivityListItem.Activity(
-            distance = "14.32 км",
-            duration = "2 часа 46 минут",
-            type = "Серфинг 🏄‍♂️",
-            user = "@van_darkholme",
-            timeAgo = "14 часов назад"
-        ),
-        ActivityListItem.Activity(
-            distance = "228 м",
-            duration = "14 часов 48 минут",
-            type = "Качели",
-            user = "@techniquepasha",
-            timeAgo = "14 часов назад"
-        ),
-        ActivityListItem.Activity(
-            distance = "10 км",
-            duration = "1 час 10 минут",
-            type = "Езда на кадилак",
-            user = "@morgen_shtern",
-            timeAgo = "14 часов назад"
-        )
-    )
+    override fun onResume() {
+        super.onResume()
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HistoryFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HistoryFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        val dummyActivities = mutableListOf<ActivityListItem>()
+        val now = Date()
+        val yesterday = Date(now.time - 24 * 60 * 60 * 1000)
+
+        dummyActivities.add(ActivityListItem.Section("Вчера"))
+
+        // Серфинг
+        dummyActivities.add(
+            ActivityListItem.Activity(
+                id = 1,
+                type = ActivityType.SURFING,
+                startDate = yesterday,
+                endDate = Date(yesterday.time + 2 * 60 * 60 * 1000 + 46 * 60 * 1000), // 2 часа 46 минут
+                distance = "14.32 км",
+                duration = "2 часа 46 минут"
+            )
+        )
+
+        // Качели
+        dummyActivities.add(
+            ActivityListItem.Activity(
+                id = 2,
+                type = ActivityType.SWING,
+                startDate = yesterday,
+                endDate = Date(yesterday.time + 14 * 60 * 60 * 1000 + 48 * 60 * 1000), // 14 часов 48 минут
+                distance = "228 м",
+                duration = "14 часов 48 минут"
+            )
+        )
+
+        // Езда на кадиллаке
+        dummyActivities.add(
+            ActivityListItem.Activity(
+                id = 3,
+                type = ActivityType.CAR,
+                startDate = yesterday,
+                endDate = Date(yesterday.time + 1 * 60 * 60 * 1000 + 10 * 60 * 1000), // 1 час 10 минут
+                distance = "10 км",
+                duration = "1 час 10 минут"
+            )
+        )
+
+        updateActivityList(dummyActivities)
+    }
+
+    override fun updateActivityList(items: List<ActivityListItem>) {
+        // Это может быть изменено позже для отображения данных пользователей
+        activityListAdapter?.submitList(items)
     }
 }

@@ -4,19 +4,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ActivityListAdapter(
-    private val items: List<ActivityListItem>,
     private val onActivityClick: (ActivityListItem.Activity) -> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : ListAdapter<ActivityListItem, RecyclerView.ViewHolder>(
+    ActivityListItemDiffCallback()
+) {
 
     companion object {
         private const val VIEW_TYPE_SECTION = 0
         private const val VIEW_TYPE_ACTIVITY = 1
     }
 
-    override fun getItemViewType(position: Int): Int = when (items[position]) {
+    override fun getItemViewType(position: Int): Int = when (getItem(position)) {
         is ActivityListItem.Section -> VIEW_TYPE_SECTION
         is ActivityListItem.Activity -> VIEW_TYPE_ACTIVITY
     }
@@ -37,10 +42,8 @@ class ActivityListAdapter(
         }
     }
 
-    override fun getItemCount(): Int = items.size
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val item = items[position]) {
+        when (val item = getItem(position)) {
             is ActivityListItem.Section -> (holder as SectionViewHolder).bind(item)
             is ActivityListItem.Activity -> (holder as ActivityViewHolder).bind(item)
         }
@@ -57,8 +60,8 @@ class ActivityListAdapter(
         private val distance: TextView = itemView.findViewById(R.id.activity_distance)
         private val duration: TextView = itemView.findViewById(R.id.activity_time)
         private val type: TextView = itemView.findViewById(R.id.activity_type)
-        private val user: TextView = itemView.findViewById(R.id.activity_user)
-        private val timeAgo: TextView = itemView.findViewById(R.id.activity_time_ago)
+        private val startDate: TextView = itemView.findViewById(R.id.activity_start_date)
+        private val endDate: TextView = itemView.findViewById(R.id.activity_end_date)
 
         private var currentItem: ActivityListItem.Activity? = null
 
@@ -72,14 +75,23 @@ class ActivityListAdapter(
             currentItem = item
             distance.text = item.distance
             duration.text = item.duration
-            type.text = item.type
-            timeAgo.text = item.timeAgo
-            if (item.user != null) {
-                user.text = item.user
-                user.visibility = View.VISIBLE
-            } else {
-                user.visibility = View.GONE
-            }
+            type.text = item.type.displayName // Use displayName from ActivityType
+
+            val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+            startDate.text = dateFormat.format(item.startDate)
+            endDate.text = dateFormat.format(item.endDate)
+        }
+    }
+
+    class ActivityListItemDiffCallback : DiffUtil.ItemCallback<ActivityListItem>() {
+        override fun areItemsTheSame(oldItem: ActivityListItem, newItem: ActivityListItem): Boolean {
+            return if (oldItem is ActivityListItem.Activity && newItem is ActivityListItem.Activity) {
+                oldItem.id == newItem.id
+            } else oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: ActivityListItem, newItem: ActivityListItem): Boolean {
+            return oldItem == newItem
         }
     }
 } 

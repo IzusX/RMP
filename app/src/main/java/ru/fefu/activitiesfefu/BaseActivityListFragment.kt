@@ -12,6 +12,8 @@ abstract class BaseActivityListFragment : Fragment() {
     protected var _binding: FragmentHistoryBinding? = null
     protected val binding get() = _binding!!
 
+    protected var activityListAdapter: ActivityListAdapter? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -27,21 +29,17 @@ abstract class BaseActivityListFragment : Fragment() {
     }
 
     protected fun setupRecyclerView() {
-        val adapter = ActivityListAdapter(getActivityList()) { activity ->
+        activityListAdapter = ActivityListAdapter() { activity ->
             navigateToActivityDetails(activity)
         }
         binding.activityRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.activityRecyclerView.adapter = adapter
+        binding.activityRecyclerView.adapter = activityListAdapter
     }
 
     protected fun navigateToActivityDetails(activity: ActivityListItem.Activity) {
         val fragment = ActivityDetailsFragment()
         fragment.arguments = Bundle().apply {
-            putString("distance", activity.distance)
-            putString("duration", activity.duration)
-            putString("type", activity.type)
-            putString("timeAgo", activity.timeAgo)
-            activity.user?.let { putString("user", it) }
+            putInt("activityId", activity.id)
         }
         parentFragmentManager.beginTransaction()
             .setReorderingAllowed(true)
@@ -51,7 +49,7 @@ abstract class BaseActivityListFragment : Fragment() {
             .commit()
     }
 
-    abstract fun getActivityList(): List<ActivityListItem>
+    abstract fun updateActivityList(items: List<ActivityListItem>)
 
     override fun onDestroyView() {
         super.onDestroyView()

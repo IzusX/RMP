@@ -27,8 +27,8 @@ class ActivityFragment : Fragment() {
         binding.viewPager.adapter = ActivityPagerAdapter(this)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = when (position) {
-                0 -> "Статистика"
-                1 -> "История"
+                0 -> "Моя"
+                1 -> "Пользователей"
                 else -> null
             }
         }.attach()
